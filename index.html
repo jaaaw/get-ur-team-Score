@@ -4,8 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Score Viewer</title>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -78,42 +76,32 @@
   <h1>✨ Welcome to the Score Page ✨</h1>
 
   <div id="formSection">
-    <input type="text" id="name" placeholder="Enter your team code " required><br/>
-    <input type="email" id="email" placeholder="Enter your email" required><br/>
-    <button onclick="submitForm()">Submit</button>
+   <input type="text" id="code" placeholder="Enter your 4-digit code" maxlength="4" pattern="\d{4}" required><br/>
+<button onclick="submitForm()">Submit</button>
+
   </div>
 
   <div id="loading">⏳ Loading your score...</div>
   <div id="result"></div>
 
-<div id="certificate" style="display: none;">
-  <div id="cert-content" style="background: #fff; color: #000; padding: 40px; border: 10px solid #888; width: 600px; margin: 20px auto; text-align: center; border-radius: 15px;">
-    <h2>🏆 Certificate of Achievement 🏆</h2>
-    <p>This certificate is proudly presented to:</p>
-    <h1 id="cert-name" style="margin: 10px 0;"></h1>
-    <p>for achieving a score of:</p>
-    <h2 id="cert-score" style="margin: 10px 0;"></h2>
-    <p>🎓 Well done! 🎓</p>
-  </div>
-  <button onclick="downloadCertificate()">⬇️ Download Certificate</button>
-</div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 
 <script>
-  const scores = {
-    "ahmed": 95,
-    "bedo": 88,
-    "mona": 76,
-    "salma": 92,
-    "omar": 80
+  const rankings = {
+    "1234": 1,
+    "5678": 2,
+    "1111": 3,
+    "2222": 4,
+    "3453": 5,
+    "3413": 6,
+    "0010": 7
   };
 
   function submitForm() {
-    const nameInput = document.getElementById("name").value.trim().toLowerCase();
-    const email = document.getElementById("email").value;
+    const codeInput = document.getElementById("code").value.trim();
 
-    if (nameInput && email) {
+    if (codeInput.length === 4 && /^\d{4}$/.test(codeInput)) {
       document.getElementById("formSection").style.display = "none";
       document.getElementById("loading").style.display = "block";
 
@@ -121,52 +109,35 @@
         document.getElementById("loading").style.display = "none";
 
         const resultDiv = document.getElementById("result");
-        const certificate = document.getElementById("certificate");
 
-        if (scores.hasOwnProperty(nameInput)) {
-          const score = scores[nameInput];
+        if (rankings.hasOwnProperty(codeInput)) {
+          const rank = rankings[codeInput];
 
-          resultDiv.innerHTML = `✅ Hello ${nameInput}, your score is <strong>${score}</strong>!`;
+          let placeText = "";
+          switch (rank) {
+            case 1: placeText = "🥇 المركز الأول"; break;
+            case 2: placeText = "🥈 المركز الثاني"; break;
+            case 3: placeText = "🥉 المركز الثالث"; break;
+            default: placeText = ` المركز رقم ${rank}`;
+          }
+
+          resultDiv.innerHTML = `✅ الكود ${codeInput} حقق <strong>${placeText}</strong>`;
           resultDiv.classList.add("show");
           resultDiv.style.display = "block";
 
-          // Fill certificate data
-          document.getElementById("cert-name").innerText = capitalize(nameInput);
-          document.getElementById("cert-score").innerText = score;
-          certificate.style.display = "block";
-          
-            // 🎉 Show confetti
-  confetti({
-    particleCount: 150,
-    spread: 70,
-    origin: { y: 0.6 }
-  });
-
+          // 🎉 Confetti
+          confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
 
         } else {
-          resultDiv.innerHTML = `❌ Sorry, no score found for <strong>${nameInput}</strong>.`;
+          resultDiv.innerHTML = `❌ الكود <strong>${codeInput}</strong> غير موجود.`;
           resultDiv.classList.add("show");
           resultDiv.style.display = "block";
         }
       }, 3000);
     } else {
-      alert("Please enter both name and email.");
+      alert("من فضلك أدخل كود مكون من 4 أرقام.");
     }
   }
-
-  function capitalize(name) {
-    return name.charAt(0).toUpperCase() + name.slice(1);
-  }
-
-  function downloadCertificate() {
-    html2canvas(document.getElementById("cert-content")).then(canvas => {
-      const link = document.createElement('a');
-      link.download = 'certificate.png';
-      link.href = canvas.toDataURL();
-      link.click();
-    });
-  }
 </script>
-
 </body>
 </html>
