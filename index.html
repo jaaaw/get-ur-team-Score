@@ -35,7 +35,7 @@
     }
 
     #result {
-      font-size: 22px;
+      font-size: 26px;
       margin-top: 30px;
       color: #ffffcc;
       opacity: 0;
@@ -73,17 +73,15 @@
 </head>
 <body>
 
-  <h1>Welcome to the Score Page </h1>
+  <h1>✨ Welcome to the Score Page ✨</h1>
 
   <div id="formSection">
-   <input type="text" id="code" placeholder="Enter your 4-digit code" maxlength="4" pattern="\d{4}" required><br/>
-<button onclick="submitForm()">Submit</button>
-
+    <input type="text" id="code" placeholder="Enter your 4-digit code" maxlength="4" pattern="\d{4}" required><br/>
+    <button onclick="submitForm()">Submit</button>
   </div>
 
   <div id="loading">⏳ Loading your score...</div>
   <div id="result"></div>
-
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 
@@ -98,6 +96,12 @@
     "0010": 7
   };
 
+  function getOrdinal(n) {
+    const s = ["th", "st", "nd", "rd"];
+    const v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+  }
+
   function submitForm() {
     const codeInput = document.getElementById("code").value.trim();
 
@@ -111,31 +115,36 @@
         const resultDiv = document.getElementById("result");
 
         if (rankings.hasOwnProperty(codeInput)) {
-          const rank = rankings[codeInput];
+          const userRank = rankings[codeInput];
+          let current = 7;
 
-          let placeText = "";
-          switch (rank) {
-            case 1: placeText = "🥇 المركز الأول"; break;
-            case 2: placeText = "🥈 المركز الثاني"; break;
-            case 3: placeText = "🥉 المركز الثالث"; break;
-            default: placeText = ` المركز رقم ${rank}`;
-          }
+          const interval = setInterval(() => {
+            resultDiv.innerHTML = `🔢 ${getOrdinal(current)}...`;
+            resultDiv.classList.add("show");
+            resultDiv.style.display = "block";
 
-          resultDiv.innerHTML = `✅ الكود ${codeInput} حقق <strong>${placeText}</strong>`;
-          resultDiv.classList.add("show");
-          resultDiv.style.display = "block";
+            if (current === userRank) {
+              clearInterval(interval);
 
-          // 🎉 Confetti
-          confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-
+              setTimeout(() => {
+                resultDiv.innerHTML = 
+                `
+                <h3>Congratulations </h3> <br>
+                🎉 You are ranked <strong>${getOrdinal(userRank)}</strong>`;
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+              }, 1000);
+            } else {
+              current--;
+            }
+          }, 1000);
         } else {
-          resultDiv.innerHTML = `❌ الكود <strong>${codeInput}</strong> غير موجود.`;
+          resultDiv.innerHTML = `❌ Code <strong>${codeInput}</strong> not found.`;
           resultDiv.classList.add("show");
           resultDiv.style.display = "block";
         }
-      }, 3000);
+      }, 2000);
     } else {
-      alert("من فضلك أدخل كود مكون من 4 أرقام.");
+      alert("Please enter a valid 4-digit code.");
     }
   }
 </script>
